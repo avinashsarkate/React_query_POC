@@ -1,26 +1,39 @@
-
-
-/* eslint-disable testing-library/prefer-screen-queries */
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import {
+  QueryClient,
+  QueryClientProvider,
+  useMutation,
+  useQuery,
+} from "@tanstack/react-query";
 import React from "react";
 import { BrowserRouter } from "react-router-dom";
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
 import { Notes } from "../Notes";
+import { deleteNotes } from "../API";
 
-
-jest.mock('axios', () => ({
+jest.mock("axios", () => ({
   get: jest.fn(() => Promise.resolve({ data: {} })),
- delete:jest.fn(() => Promise.resolve({ data: {} })),
- post: jest.fn(() => Promise.resolve({ data: {} }))
-}))
+  delete: jest.fn(() => Promise.resolve({ data: {} })),
+  post: jest.fn(() => Promise.resolve({ data: {} })),
+}));
 
+jest.mock("../API", () => ({
+  deleteNotes: jest.fn(),
+}));
+
+jest.mock("@tanstack/react-query", () => ({
+  ...jest.requireActual("@tanstack/react-query"),
+  useQuery: jest.fn(),
+  useMutation: jest.fn(() => ({
+    mutate: jest.fn(),
+  })),
+}));
 
 describe("Notes Component", () => {
-
   beforeEach(() => {
     jest.clearAllMocks();
-  })
-
+    (useQuery as jest.Mock).mockReturnValue({ isLoading: false })
+    
+  });
 
   const queryClient = new QueryClient();
 
@@ -32,18 +45,17 @@ describe("Notes Component", () => {
     </QueryClientProvider>
   );
 
-
-  test('renders loading state', () => {
-    jest.requireMock('@tanstack/react-query').useQuery.mockReturnValueOnce({ isLoading: true });
+  test("renders loading state", () => {
+    (useQuery as jest.Mock).mockReturnValue({ isLoading: true });
     render(component);
-    expect(screen.getByText('Loading...')).toBeInTheDocument();
-  })
-
+    expect(screen.getByText("Loading...")).toBeInTheDocument();
+  });
 
   test("Render component without crashing", () => {
     render(component);
   });
- ;
+
+
   test("Render component", () => {
     const { container } = render(component);
     expect(container).toBeTruthy();
@@ -54,5 +66,3 @@ describe("Notes Component", () => {
     expect(asFragment).toMatchSnapshot();
   });
 });
-
-

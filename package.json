@@ -24,6 +24,7 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
+    "test:coverage": "react-scripts test --coverage --watchAll=false",
     "eject": "react-scripts eject"
   },
   "eslintConfig": {
@@ -47,4 +48,5 @@
   "devDependencies": {
     "@babel/preset-env": "^7.23.9"
   }
+ 
 }
